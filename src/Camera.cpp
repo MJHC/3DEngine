@@ -58,3 +58,7 @@ void Camera::update() {
     _right = glm::normalize(glm::cross(_front, _worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     _up    = glm::normalize(glm::cross(_right, _front));
 }
+
+glm::vec3 Camera::pos(){
+    return _pos;
+}

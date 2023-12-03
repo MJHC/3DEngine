@@ -35,6 +35,7 @@ public:
     ~Mesh();
     void draw(Shader &shader);
     static Mesh cube(std::vector<Texture> &textures);
+    static Mesh cube();
     static Mesh sphere(float radius, int numStacks, int numSlices);
 };
 

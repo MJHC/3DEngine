@@ -10,6 +10,10 @@
 #include "Camera.h"
 #include "Mesh.h"
 
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window, Camera &camera);
 void mouseCallback(GLFWwindow *window, double x, double y);
@@ -20,8 +24,8 @@ void errorCallback(int error, const char* description);
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 Camera camera = Camera();
-float lastX = 400;
-float lastY = 300;
+float lastX = SCREEN_WIDTH / 2;
+float lastY = SCREEN_HEIGHT / 2;
 bool firstMouse = true;
 
 int main() {
@@ -30,7 +34,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Hello World!", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Hello World!", NULL, NULL);
     if (window == NULL){
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -41,8 +45,8 @@ int main() {
     int x;
 
     getDesktopResolution(x, y);
-    int windowHeight = 600;
-    int windowWidth = 800;
+    int windowHeight = SCREEN_HEIGHT;
+    int windowWidth = SCREEN_WIDTH;
     int centerX = (x / 2) - (windowWidth / 2);
     int centerY = (y / 2) - (windowHeight / 2);
 
@@ -60,7 +64,8 @@ int main() {
 
     glfwSetWindowPos(window, centerX, centerY);
 
-    Shader myShader = Shader("../res/shader/shader.vs", "../res/shader/shader.fs");
+    Shader textureShader = Shader("../res/shader/shader.vs", "../res/shader/shader.fs");
+    Shader colorShader = Shader("../res/shader/shader.vs", "../res/shader/color.fs");
 
     glEnable(GL_DEPTH_TEST);
 
@@ -68,45 +73,64 @@ int main() {
     std::vector<Texture> textures = {
             Texture("../res/img/block.png", "image", true, GL_RGBA),
             };
-    Mesh myCube = Mesh::cube(textures);
-    Mesh mySphere = Mesh::sphere(1.f, 10, 10);
 
-    std::vector<glm::vec3> cubePos = {};
-    for (int i = 0; i < 16; i++){
-        for (int j = 0; j < 16; j++){
-            cubePos.push_back(glm::vec3(i, 0, j));
-        }
-    }
+
+
+    Mesh myCube = Mesh::cube(textures);
+    glm::vec3 cubePos = glm::vec3(0.f, 0.f, 0.f);
+    Mesh sun = Mesh::sphere(1.f, 20, 20);
+    glm::vec3 sunPos = glm::vec3(1.2f, 1.0f, 2.0f);
+
+    
+    
 
     while(!glfwWindowShouldClose(window)){
         processInput(window, camera);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        myShader.use();
-
-        glm::mat4 projection    = glm::mat4(1.0f);
-        projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
-
-
         glm::mat4 view = camera.viewMatrix();
-
-        myShader.setMatrix("view", view);
-        myShader.setMatrix("projection", projection);
+        glm::vec3 camPos = camera.pos();
 
         glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::translate(model, glm::vec3 (0.f, 0.f, 0.f));
-        //model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(1.f, .0f, 0.0f));
-        //myShader.setMatrix("model", model);
+        glm::mat4 projection = glm::mat4(1.0f);
+        projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
-        for (glm::vec3 &pos : cubePos){
-            glm::mat4 cubeModel = glm::translate(model, pos);
-            myShader.setMatrix("model", glm::rotate(cubeModel, (float)glfwGetTime(), glm::vec3(1.f, 1.f, 1.f)));
-            myCube.draw(myShader);
-        }
+        textureShader.use();
+        textureShader.setMatrix("view", view);
+        textureShader.setMatrix("projection", projection);
+        textureShader.setMatrix("model", glm::translate(model, cubePos));
 
-        myShader.setMatrix("model", glm::translate(model, glm::vec3 (0.f, 5.f, 0.f)));
-        mySphere.draw(myShader);
+        textureShader.setFloat("objectColor", 1.f, 1.f, 1.f);
+        textureShader.setFloat("lightColor",  1.0f, 1.0f, 1.0f);
+        textureShader.setFloat("lightPos", sunPos.x ,sunPos.y, sunPos.z);
+        textureShader.setFloat("viewPos", camPos.x, camPos.y, camPos.z);
+        myCube.draw(textureShader);
+
+
+
+        colorShader.use();
+
+        colorShader.setMatrix("view", view);
+        colorShader.setMatrix("projection", projection);
+        
+
+        // Rotating sun !
+        const float sunRadius = 1.2f; 
+        float sunAngle = glfwGetTime();  
+
+
+        float sunX = sin(sunAngle) * sunRadius;
+        float sunZ = cos(sunAngle) * sunRadius;
+        sunPos = glm::vec3(sunX, 1.0f, sunZ);
+
+        // Create a model matrix for the sun
+        glm::mat4 sunModel = glm::translate(glm::mat4(1.0f), sunPos);
+        sunModel = glm::scale(sunModel, glm::vec3(0.2f)); 
+        colorShader.setMatrix("model", sunModel);
+        colorShader.setFloat("objectColor", 1.f, 1.f, 1.f);
+        sun.draw(colorShader);
+
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;

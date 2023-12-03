@@ -43,7 +43,7 @@ public:
     glm::mat4 viewMatrix();
     void processKeyboard(CameraMovement direction, float deltaTime);
     void processMouse(float x, float y);
-
+    glm::vec3 pos();
 };
 
 

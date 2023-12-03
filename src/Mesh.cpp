@@ -96,6 +96,11 @@ Mesh Mesh::cube(std::vector<Texture> &textures) {
     return Mesh(vertices, indices, textures);
 }
 
+Mesh Mesh::cube(){
+    std::vector<Texture> tt = {};
+    return Mesh::cube(tt);
+}
+
 Mesh Mesh::sphere(float radius, int numStacks, int numSlices){
     std::vector<Vertex> vertices;
     float phi, theta;
