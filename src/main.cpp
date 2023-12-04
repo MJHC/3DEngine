@@ -10,8 +10,8 @@
 #include "Camera.h"
 #include "Mesh.h"
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 1920
+#define SCREEN_HEIGHT 1080
 
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -23,7 +23,7 @@ void errorCallback(int error, const char* description);
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-Camera camera = Camera();
+Camera camera = Camera(glm::vec3(.0f, 2.f, 5.0f));
 float lastX = SCREEN_WIDTH / 2;
 float lastY = SCREEN_HEIGHT / 2;
 bool firstMouse = true;
@@ -77,16 +77,21 @@ int main() {
 
 
     Mesh myCube = Mesh::cube(textures);
-    glm::vec3 cubePos = glm::vec3(0.f, 0.f, 0.f);
     Mesh sun = Mesh::sphere(1.f, 20, 20);
     glm::vec3 sunPos = glm::vec3(1.2f, 1.0f, 2.0f);
 
     
-    
+    std::vector<glm::vec3> plane ={glm::vec3(0.f, 1.f, 0.f)};
+
+    for (int i=0; i < 16; i++){
+        for (int j=0; j < 16; j++){
+            plane.push_back(glm::vec3(i - 8, 0, j - 8));
+        }
+    }
 
     while(!glfwWindowShouldClose(window)){
         processInput(window, camera);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 view = camera.viewMatrix();
@@ -97,15 +102,18 @@ int main() {
         projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
         textureShader.use();
-        textureShader.setMatrix("view", view);
-        textureShader.setMatrix("projection", projection);
-        textureShader.setMatrix("model", glm::translate(model, cubePos));
+        for (glm::vec3 &pos : plane){
+            textureShader.setMatrix("view", view);
+            textureShader.setMatrix("projection", projection);
+            textureShader.setMatrix("model", glm::translate(model, pos));
 
-        textureShader.setFloat("objectColor", 1.f, 1.f, 1.f);
-        textureShader.setFloat("lightColor",  1.0f, 1.0f, 1.0f);
-        textureShader.setFloat("lightPos", sunPos.x ,sunPos.y, sunPos.z);
-        textureShader.setFloat("viewPos", camPos.x, camPos.y, camPos.z);
-        myCube.draw(textureShader);
+            textureShader.setFloat("objectColor", 1.f, 1.f, 1.f);
+            textureShader.setFloat("lightColor",  1.0f, 1.0f, 1.0f);
+            textureShader.setFloat("lightPos", sunPos.x ,sunPos.y, sunPos.z);
+            textureShader.setFloat("viewPos", camPos.x, camPos.y, camPos.z);
+            myCube.draw(textureShader);
+        }
+
 
 
 
@@ -122,7 +130,7 @@ int main() {
 
         float sunX = sin(sunAngle) * sunRadius;
         float sunZ = cos(sunAngle) * sunRadius;
-        sunPos = glm::vec3(sunX, 1.0f, sunZ);
+        sunPos = glm::vec3(sunX, 2.0f, sunZ);
 
         // Create a model matrix for the sun
         glm::mat4 sunModel = glm::translate(glm::mat4(1.0f), sunPos);
