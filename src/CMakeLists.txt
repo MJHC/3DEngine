@@ -14,19 +14,12 @@ include_directories(../lib/glm)
 
 add_executable(3dengine main.cpp
         Shader.cpp
-        Shader.h
         utils.cpp
-        utils.h
         VertexArray.cpp
-        VertexArray.h
         ObjectBuffer.cpp
-        ObjectBuffer.h
         Texture.cpp
-        Texture.h
         Camera.cpp
-        Camera.h
         Mesh.cpp
-        Mesh.h
 )
 
 target_link_libraries(3dengine PRIVATE glfw glad)

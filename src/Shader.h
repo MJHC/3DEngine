@@ -21,19 +21,10 @@ public:
     void setInt(const std::string &name, int val);
     void setFloat(const std::string &name, float val);
 
-    void setBool(const std::string &name, bool x, bool y);
-    void setInt(const std::string &name, int x, int y);
-    void setFloat(const std::string &name, float x, float y);
-
-    void setBool(const std::string &name, bool x, bool y, bool z);
-    void setInt(const std::string &name, int x, int y, int z);
-    void setFloat(const std::string &name, float x, float y, float z);
-
-    void setBool(const std::string &name, bool x, bool y, bool z, bool w);
-    void setInt(const std::string &name, int x, int y, int z, int w);
-    void setFloat(const std::string &name, float x, float y, float z, float w);
-
-    void setMatrix(const std::string &name, const glm::mat4 &mat);
+    void setVec2f(const std::string &name, const glm::vec2 &vec);
+    void setVec3f(const std::string &name, const glm::vec3 &vec);
+    void setVec4f(const std::string &name, const glm::vec4 &vec);
+    void setMat4(const std::string &name, const glm::mat4 &mat);
 
 };
 

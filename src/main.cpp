@@ -88,7 +88,7 @@ int main() {
             plane.push_back(glm::vec3(i - 8, 0, j - 8));
         }
     }
-
+    
     while(!glfwWindowShouldClose(window)){
         processInput(window, camera);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -103,14 +103,20 @@ int main() {
 
         textureShader.use();
         for (glm::vec3 &pos : plane){
-            textureShader.setMatrix("view", view);
-            textureShader.setMatrix("projection", projection);
-            textureShader.setMatrix("model", glm::translate(model, pos));
+            textureShader.setMat4("view", view);
+            textureShader.setMat4("projection", projection);
+            textureShader.setMat4("model", glm::translate(model, pos));
+            textureShader.setVec3f("material.color", glm::vec3(1.f));
+            textureShader.setVec3f("material.ambient", glm::vec3(1.f));
+            textureShader.setVec3f("material.diffuse", glm::vec3(1.f));
+            textureShader.setVec3f("material.specular", glm::vec3(1.f));
+            textureShader.setFloat("material.shininess", 16.f);
 
-            textureShader.setFloat("objectColor", 1.f, 1.f, 1.f);
-            textureShader.setFloat("lightColor",  1.0f, 1.0f, 1.0f);
-            textureShader.setFloat("lightPos", sunPos.x ,sunPos.y, sunPos.z);
-            textureShader.setFloat("viewPos", camPos.x, camPos.y, camPos.z);
+            textureShader.setVec3f("light.ambient",  glm::vec3(.2f));
+            textureShader.setVec3f("light.diffuse",  glm::vec3(.5f)); // darken diffuse light a bit
+            textureShader.setVec3f("light.specular", glm::vec3(1.f)); 
+            textureShader.setVec3f("lightPos", sunPos);
+            textureShader.setVec3f("viewPos", camPos);
             myCube.draw(textureShader);
         }
 
@@ -119,8 +125,8 @@ int main() {
 
         colorShader.use();
 
-        colorShader.setMatrix("view", view);
-        colorShader.setMatrix("projection", projection);
+        colorShader.setMat4("view", view);
+        colorShader.setMat4("projection", projection);
         
 
         // Rotating sun !
@@ -135,8 +141,8 @@ int main() {
         // Create a model matrix for the sun
         glm::mat4 sunModel = glm::translate(glm::mat4(1.0f), sunPos);
         sunModel = glm::scale(sunModel, glm::vec3(0.2f)); 
-        colorShader.setMatrix("model", sunModel);
-        colorShader.setFloat("objectColor", 1.f, 1.f, 1.f);
+        colorShader.setMat4("model", sunModel);
+        colorShader.setVec3f("objectColor", glm::vec3(1.f));
         sun.draw(colorShader);
 
 

@@ -72,43 +72,18 @@ void Shader::setFloat(const std::string &name, float val) {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), val);
 }
 
-void Shader::setBool(const std::string &name, bool x, bool y) {
-    setInt(name, (int)x, (int)y);
+void Shader::setVec2f(const std::string &name, const glm::vec2 &vec) {
+    glUniform2f(glGetUniformLocation(ID, name.c_str()), vec.x, vec.y);
+}
+void Shader::setVec3f(const std::string &name, const glm::vec3 &vec) {
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), vec.x, vec.y, vec.z);
 }
 
-void Shader::setInt(const std::string &name, int x, int y) {
-    glUniform2i(glGetUniformLocation(ID, name.c_str()), x, y);
+void Shader::setVec4f(const std::string &name, const glm::vec4 &vec) {
+    glUniform4f(glGetUniformLocation(ID, name.c_str()), vec.x, vec.y, vec.z, vec.w);
 }
 
-void Shader::setFloat(const std::string &name, float x, float y) {
-    glUniform2f(glGetUniformLocation(ID, name.c_str()), x, y);
-}
-
-void Shader::setBool(const std::string &name, bool x, bool y, bool z) {
-    setInt(name, (int)x, (int)y, (int)z);
-}
-
-void Shader::setInt(const std::string &name, int x, int y, int z) {
-    glUniform3i(glGetUniformLocation(ID, name.c_str()), x, y, z);
-}
-
-void Shader::setFloat(const std::string &name, float x, float y, float z) {
-    glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
-}
-
-void Shader::setBool(const std::string &name, bool x, bool y, bool z, bool w) {
-    setInt(name, (int)x, (int)y, (int)z, (int)w);
-}
-
-void Shader::setInt(const std::string &name, int x, int y, int z, int w) {
-    glUniform4i(glGetUniformLocation(ID, name.c_str()), x, y, z, w);
-}
-
-void Shader::setFloat(const std::string &name, float x, float y, float z, float w) {
-    glUniform4f(glGetUniformLocation(ID, name.c_str()), x, y, z, w);
-}
-
-void Shader::setMatrix(const std::string &name, const glm::mat4 &mat) {
+void Shader::setMat4(const std::string &name, const glm::mat4 &mat) {
     glUniformMatrix4fv(glGetUniformLocation(ID,name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 }
 
